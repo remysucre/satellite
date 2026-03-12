@@ -25,7 +25,7 @@ export async function getSatBase(domain) {
 
 export async function fetchProfile(domain) {
   const base = await getSatBase(domain);
-  const resp = await fetch(`${base}/satproto.json`);
+  const resp = await fetch(`${base}/profile.json`);
   if (!resp.ok) throw new Error(`Profile not found for ${domain}`);
   return resp.json();
 }

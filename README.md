@@ -58,7 +58,7 @@ the domain owner published it.
 A `s@`-enabled site exposes a discovery document at:
 
 ```
-GET https://{domain}/satellite/satproto.json
+GET https://{domain}/satellite/profile.json
 ```
 
 The discovery document simply contains the protocol version and the user's public key:
@@ -194,7 +194,7 @@ Any secrets needed for publishing (e.g. GitHub token)
 
 ```
 {domain}/satellite/
-  satproto.json             # Discovery + profile + public key
+  profile.json              # Discovery + profile + public key
   posts/
     index.json              # Post ID list (plaintext, newest first)
     {id}.json.enc           # Individually encrypted post files
