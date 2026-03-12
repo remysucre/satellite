@@ -74,15 +74,13 @@ function showMain() {
 
 // --- Bootstrap ---
 
-async function pushSelfData(token, repo, contentKey) {
+function selfDataEntry(repo, token, contentKey) {
   const pk = crypto.fromBase64(localStorage.getItem('satproto_public_key'));
   const plaintext = new TextEncoder().encode(
     JSON.stringify({ content_key: crypto.toBase64(contentKey), repo, token })
   );
   const sealed = crypto.sealBox(plaintext, pk);
-  await github.pushTextFile(
-    token,
-    repo,
+  return github.textEntry(
     'keys/_self.json',
     JSON.stringify({ sealed_data: crypto.toBase64(sealed) })
   );
@@ -95,22 +93,15 @@ async function bootstrap() {
   const contentKey = crypto.generateContentKey();
   localStorage.setItem('satproto_content_key', crypto.toBase64(contentKey));
 
-  const files = [
-    [
-      'profile.json',
-      JSON.stringify({
-        satproto_version: '0.1.0',
-        public_key: pk,
-      }),
-    ],
-    ['follows/index.json', JSON.stringify({ follows: [] })],
-    ['posts/index.json', JSON.stringify({ posts: [] })],
-  ];
-
-  for (const [path, content] of files) {
-    await github.pushTextFile(token, repo, path, content);
-  }
-  await pushSelfData(token, repo, contentKey);
+  await github.pushFiles(token, repo, [
+    github.textEntry('profile.json', JSON.stringify({
+      satproto_version: '0.1.0',
+      public_key: pk,
+    })),
+    github.textEntry('follows/index.json', JSON.stringify({ follows: [] })),
+    github.textEntry('posts/index.json', JSON.stringify({ posts: [] })),
+    selfDataEntry(repo, token, contentKey),
+  ], 'bootstrap site');
   console.log('Site bootstrapped!');
 }
 
@@ -349,13 +340,6 @@ window.submitPost = async function () {
     const postJson = new TextEncoder().encode(JSON.stringify(post));
     const encrypted = crypto.encryptData(postJson, contentKey);
 
-    await github.pushBinaryFile(
-      token,
-      repo,
-      `posts/${id}.json.enc`,
-      encrypted
-    );
-
     // Update post index
     let index;
     try {
@@ -364,12 +348,11 @@ window.submitPost = async function () {
       index = { posts: [] };
     }
     index.posts.unshift(id);
-    await github.pushTextFile(
-      token,
-      repo,
-      'posts/index.json',
-      JSON.stringify(index)
-    );
+
+    await github.pushFiles(token, repo, [
+      github.binaryEntry(`posts/${id}.json.enc`, encrypted),
+      github.textEntry('posts/index.json', JSON.stringify(index)),
+    ], `new post: ${id}`);
 
     document.getElementById('post-text').value = '';
     await refreshFeed();
@@ -402,13 +385,6 @@ window.doFollow = async function () {
       recipient: target,
       encrypted_key: crypto.toBase64(sealed),
     };
-    await github.pushTextFile(
-      token,
-      repo,
-      `keys/${target}.json`,
-      JSON.stringify(envelope)
-    );
-
     // Update follow list
     let list;
     try {
@@ -419,12 +395,11 @@ window.doFollow = async function () {
     if (!list.follows.includes(target)) {
       list.follows.push(target);
     }
-    await github.pushTextFile(
-      token,
-      repo,
-      'follows/index.json',
-      JSON.stringify(list)
-    );
+
+    await github.pushFiles(token, repo, [
+      github.textEntry(`keys/${target}.json`, JSON.stringify(envelope)),
+      github.textEntry('follows/index.json', JSON.stringify(list)),
+    ], `follow ${target}`);
 
     document.getElementById('follow-domain-input').value = '';
     await refreshFollows();
@@ -459,6 +434,8 @@ window.doUnfollow = async function (target) {
     const newContentKey = crypto.generateContentKey();
     localStorage.setItem('satproto_content_key', crypto.toBase64(newContentKey));
 
+    const files = [];
+
     // Re-encrypt each post
     for (const postId of index.posts) {
       try {
@@ -469,12 +446,7 @@ window.doUnfollow = async function (target) {
         const encrypted = new Uint8Array(await resp.arrayBuffer());
         const decrypted = crypto.decryptData(encrypted, oldContentKey);
         const reEncrypted = crypto.encryptData(decrypted, newContentKey);
-        await github.pushBinaryFile(
-          token,
-          repo,
-          `posts/${postId}.json.enc`,
-          reEncrypted
-        );
+        files.push(github.binaryEntry(`posts/${postId}.json.enc`, reEncrypted));
       } catch (e) {
         console.warn(`Failed to re-encrypt post ${postId}:`, e);
       }
@@ -499,25 +471,16 @@ window.doUnfollow = async function (target) {
           recipient: follower,
           encrypted_key: crypto.toBase64(sealed),
         };
-        await github.pushTextFile(
-          token,
-          repo,
-          `keys/${follower}.json`,
-          JSON.stringify(envelope)
-        );
+        files.push(github.textEntry(`keys/${follower}.json`, JSON.stringify(envelope)));
       } catch (e) {
         console.warn(`Failed to update key for ${follower}:`, e);
       }
     }
 
-    await github.pushTextFile(
-      token,
-      repo,
-      'follows/index.json',
-      JSON.stringify(list)
-    );
+    files.push(github.textEntry('follows/index.json', JSON.stringify(list)));
+    files.push(selfDataEntry(repo, token, newContentKey));
 
-    await pushSelfData(token, repo, newContentKey);
+    await github.pushFiles(token, repo, files, `unfollow ${target}`);
 
     await refreshFollows();
     await refreshFeed();
@@ -545,13 +508,6 @@ window.doReply = async function (postId, postAuthor) {
     const postJson = new TextEncoder().encode(JSON.stringify(post));
     const encrypted = crypto.encryptData(postJson, contentKey);
 
-    await github.pushBinaryFile(
-      token,
-      repo,
-      `posts/${id}.json.enc`,
-      encrypted
-    );
-
     let index;
     try {
       index = await feed.fetchPostIndex(domain);
@@ -559,12 +515,11 @@ window.doReply = async function (postId, postAuthor) {
       index = { posts: [] };
     }
     index.posts.unshift(id);
-    await github.pushTextFile(
-      token,
-      repo,
-      'posts/index.json',
-      JSON.stringify(index)
-    );
+
+    await github.pushFiles(token, repo, [
+      github.binaryEntry(`posts/${id}.json.enc`, encrypted),
+      github.textEntry('posts/index.json', JSON.stringify(index)),
+    ], `reply: ${id}`);
 
     await refreshFeed();
   } catch (e) {
