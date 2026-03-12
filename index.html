@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satellite</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Satellite</h1>
+    <p>Decentralized social networking on static sites</p>
+    <div id="public-key-display"></div>
+  </header>
+
+  <div id="setup-panel">
+    <label for="username-input">GitHub username</label>
+    <input type="text" id="username-input" placeholder="username">
+    <div id="token-hint" style="display:none;">
+      <a id="token-link" href="#" target="_blank">Generate token on GitHub</a>
+      <br>Select the <code id="repo-hint"></code> repo and grant <code>Contents: read/write</code> access.
+    </div>
+
+    <label for="token-input">GitHub token</label>
+    <input type="password" id="token-input" placeholder="github_pat_...">
+
+    <button onclick="saveSetup()">Initialize (new user)</button>
+
+    <details id="signin-details">
+      <summary>Sign in (returning user)</summary>
+      <label for="secret-key-input">Secret key</label>
+      <input type="password" id="secret-key-input" placeholder="base64-encoded secret key">
+      <button onclick="signIn()">Sign In</button>
+    </details>
+  </div>
+
+  <div id="main-ui" style="display:none;">
+    <div id="compose">
+      <textarea id="post-text" placeholder="Patience, you must have"></textarea>
+      <button onclick="submitPost()" id="post-btn">Post</button>
+    </div>
+  </div>
+
+  <div id="status">Loading...</div>
+  <div id="feed"></div>
+
+  <div id="follow-panel" style="display:none;">
+    <div id="follow-input-row">
+      <input type="text" id="follow-domain-input" placeholder="alice.github.io">
+      <button onclick="doFollow()" id="follow-btn">Follow</button>
+    </div>
+    <div id="follows-list"></div>
+    <button onclick="exportKeys()" id="export-btn" class="secondary-btn">Export keys</button>
+    <button onclick="reinitialize()" id="reinit-btn" class="secondary-btn">Re-initialize site</button>
+  </div>
+
+  <script type="importmap">
+    { "imports": { "libsodium-wrappers-sumo": "https://esm.sh/libsodium-wrappers-sumo@0.7.15" } }
+  </script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
