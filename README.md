@@ -1,4 +1,4 @@
-# `s@`: social networking over static sites
+# `s@`: Social Networking over Static Sites
 
 ```
       simple  *
@@ -6,7 +6,7 @@
 self-reliant  *
 ```
 
-## Quick start
+## Quick Start
 
 1. Fork [this repo](https://github.com/remysucre/satellite) (see below if you need a different name from `satellite`)
 2. Enable [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-from-a-branch) on your fork (deploy from the `main` branch).
@@ -77,7 +77,8 @@ Only the user and users in the owner's follow list can decrypt it.
 
 - Each user generates an **X25519 keypair**.
   The public key is published in the discovery document.
-  The private key is stored in the browser's localStorage.
+  The private key is cached in the browser's localStorage
+   and should be exported for safekeeping.
 - A random **content key** (256-bit symmetric key) encrypts
   post data with XChaCha20-Poly1305.
 - The content key is encrypted per-follower using libsodium sealed boxes
@@ -202,11 +203,11 @@ Any secrets needed for publishing (e.g. GitHub token)
 
 > Is this just RSS + encryption?
 
-Yes!
+Yes
 
 > Is this just [AT Protocol](https://atproto.com) but no firehose?
 
-Yes!
+Yes
 
 > Does this scale?
 
@@ -214,7 +215,7 @@ No! Neither does friendship.
 
 > Does the "s" also stand for "slow" and "shitty"?
 
-Absolutely!
+Yes
 
 > Wait so I can self-host this?
 
