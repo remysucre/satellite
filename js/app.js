@@ -97,7 +97,7 @@ async function bootstrap() {
 
   const files = [
     [
-      'satproto.json',
+      'profile.json',
       JSON.stringify({
         satproto_version: '0.1.0',
         public_key: pk,
