@@ -1,7 +1,6 @@
 // Main application logic
 
 import * as crypto from './crypto.js';
-import * as auth from './auth.js';
 import * as github from './github.js';
 import * as feed from './feed.js';
 
@@ -22,7 +21,7 @@ function getState() {
   return {
     domain: getDomain(),
     repo: localStorage.getItem('satproto_github_repo'),
-    token: auth.getStoredToken(),
+    token: localStorage.getItem('satproto_github_token'),
   };
 }
 
@@ -279,7 +278,7 @@ window.saveSetup = async function () {
   try {
     const repo = `${username}/${getRepoName()}`;
     localStorage.setItem('satproto_github_repo', repo);
-    auth.storeToken(token);
+    localStorage.setItem('satproto_github_token', token);
 
     await bootstrap();
     showMain();
@@ -316,7 +315,7 @@ window.signIn = async function () {
     const selfData = JSON.parse(new TextDecoder().decode(decrypted));
 
     localStorage.setItem('satproto_github_repo', selfData.repo);
-    auth.storeToken(selfData.token);
+    localStorage.setItem('satproto_github_token', selfData.token);
     localStorage.setItem('satproto_secret_key', sk);
     localStorage.setItem('satproto_public_key', crypto.toBase64(publicKey));
     localStorage.setItem('satproto_content_key', selfData.content_key);

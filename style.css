@@ -238,25 +238,6 @@ button:disabled {
   font-size: 0.85em;
 }
 
-.device-code {
-  font-family: monospace;
-  font-size: 2em;
-  font-weight: bold;
-  text-align: center;
-  color: #fff;
-  background: #222;
-  border-radius: 8px;
-  padding: 12px;
-  margin: 8px 0;
-  letter-spacing: 4px;
-}
-
-#device-code-panel p {
-  color: #888;
-  font-size: 0.9em;
-  margin-top: 12px;
-}
-
 #setup-panel details {
   margin-top: 12px;
 }

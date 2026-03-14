@@ -76,13 +76,6 @@ export async function fetchUserPosts(domain, myDomain, mySecret, limit = 50) {
   }
   return posts;
 }
-
-export async function fetchSinglePost(domain, postId, myDomain, mySecret) {
-  const base = await getSatBase(domain);
-  const contentKey = await fetchKeyEnvelope(base, myDomain, mySecret);
-  return fetchPost(base, postId, contentKey);
-}
-
 export function mergeFeed(postArrays) {
   return postArrays.flat().sort((a, b) =>
     b.created_at.localeCompare(a.created_at)
