@@ -29,9 +29,10 @@ GitHub Pages with Jekyll ignores dotfiles/directories by default.
 To serve `.well-known/`, either:
 - Add a `.nojekyll` file to your domain root repo (if you don't use Jekyll), or
 - Add `include: [".well-known"]` to `_config.yml` (if you do use Jekyll)
-## sAT Protocol
 
-sAT Protocol (`s@`) is a decentralized social networking protocol based on static sites.
+## Protocol
+
+`s@` is a decentralized social networking protocol based on static sites.
 Each user owns a static website storing all their data in encrypted JSON stores.
 A client running in the browser aggregates feeds and publishes posts.
 It does not rely on any servers or relays.
@@ -209,19 +210,15 @@ Any secrets needed for publishing (e.g. GitHub token)
 
 > Is this just RSS + encryption?
 
-Yes
+Yes.
 
 > Is this just [AT Protocol](https://atproto.com) but no firehose?
 
-Yes
+Yes.
 
 > Does this scale?
 
 No! Neither does friendship. 
-
-> Does the "s" also stand for "slow" and "shitty"?
-
-Yes
 
 > Wait so I can self-host this?
 
